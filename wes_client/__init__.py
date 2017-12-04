@@ -9,7 +9,7 @@ import sys
 import os
 import argparse
 import logging
-import urlparse
+import urllib.parse as urlparse
 import pkg_resources  # part of setuptools
 from wes_service.util import visit
 import urllib
@@ -41,7 +41,7 @@ def main(argv=sys.argv[1:]):
 
     if args.version:
         pkg = pkg_resources.require("wes_service")
-        print u"%s %s" % (sys.argv[0], pkg[0].version)
+        print(u"%s %s" % (sys.argv[0], pkg[0].version))
         exit(0)
 
     http_client = RequestsClient()

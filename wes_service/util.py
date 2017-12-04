@@ -4,7 +4,7 @@ def visit(d, op):
         for i in d:
             visit(i, op)
     elif isinstance(d, dict):
-        for i in d.itervalues():
+        for i in d.values():
             visit(i, op)
 
 class WESBackend(object):
