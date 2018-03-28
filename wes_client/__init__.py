@@ -99,7 +99,7 @@ def main(argv=sys.argv[1:]):
         exit(0)
 
     r = client.WorkflowExecutionService.GetWorkflowStatus(workflow_id=r["workflow_id"]).result()
-    while r["state"] in ("Queued", "Initializing", "Running"):
+    while r["state"] in ("QUEUED", "INITIALIZING", "RUNNING"):
         time.sleep(1)
         r = client.WorkflowExecutionService.GetWorkflowStatus(workflow_id=r["workflow_id"]).result()
 
@@ -112,7 +112,7 @@ def main(argv=sys.argv[1:]):
         del s["outputs"]["fields"]
     json.dump(s["outputs"], sys.stdout, indent=4)
 
-    if r["state"] == "Complete":
+    if r["state"] == "COMPLETE":
         return 0
     else:
         return 1

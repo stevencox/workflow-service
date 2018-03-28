@@ -11,7 +11,7 @@ SETUP_DIR = os.path.dirname(__file__)
 README = os.path.join(SETUP_DIR, 'README.md')
 
 setup(name='wes-service',
-      version='2.1',
+      version='2.1.1',
       description='GA4GH Workflow Execution Service reference implementation',
       long_description=open(README).read(),
       author='GA4GH Containers and Workflows task team',
@@ -20,7 +20,7 @@ setup(name='wes-service',
       download_url="https://github.com/common-workflow-language/cwltool-service",
       license='Apache 2.0',
       packages=["wes_service", "wes_client"],
-      package_data={'wes_service': ['swagger/proto/workflow_execution.swagger.json']},
+      package_data={'wes_service': ['swagger/proto/workflow_execution_service.swagger.json']},
       include_package_data=True,
       install_requires=[
           'connexion',
