@@ -122,6 +122,26 @@ class Workflow(object):
 
 
 class CWLRunnerBackend(WESBackend):
+    # Aliases to handle Swagger Router Controler in spec
+    aliases = {
+        'ga4gh.wes.server.GetServiceInfo': 'GetServiceInfo',
+        'ga4gh.wes.server.ListWorkflows': 'ListWorkflows',
+        'ga4gh.wes.server.RunWorkflow': 'RunWorkflow',
+        'ga4gh.wes.server.GetWorkflowLog': 'GetWorkflowLog',
+        'ga4gh.wes.server.CancelJob': 'CancelJob',
+        'ga4gh.wes.server.GetWorkflowStatus': 'GetWorkflowStatus',
+    }
+
+    def __setattr__(self, name, value):
+        name = self.aliases.get(name, name)
+        object.__setattr__(self, name, value)
+
+    def __getattr__(self, name):
+        if name == "aliases":
+            raise AttributeError
+        name = self.aliases.get(name, name)
+        return object.__getattribute__(self, name)
+
     def GetServiceInfo(self):
         return {
             "workflow_type_versions": {
