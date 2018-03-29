@@ -28,6 +28,7 @@ def main(argv=sys.argv[1:]):
     exgroup.add_argument("--run", action="store_true", default=False)
     exgroup.add_argument("--get", type=str, default=None)
     exgroup.add_argument("--log", type=str, default=None)
+    exgroup.add_argument("--cancel", type=str, default=None)
     exgroup.add_argument("--list", action="store_true", default=False)
     exgroup.add_argument("--info", action="store_true", default=False)
     exgroup.add_argument("--version", action="store_true", default=False)
@@ -71,6 +72,11 @@ def main(argv=sys.argv[1:]):
 
     if args.get:
         l = client.WorkflowExecutionService.GetWorkflowStatus(workflow_id=args.get)
+        json.dump(l.result(), sys.stdout, indent=4)
+        return 0
+
+    if args.cancel:
+        l = client.WorkflowExecutionService.CancelJob(workflow_id=args.cancel)
         json.dump(l.result(), sys.stdout, indent=4)
         return 0
 
