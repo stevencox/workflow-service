@@ -144,13 +144,16 @@ class CWLRunnerBackend(WESBackend):
 
     def GetServiceInfo(self):
         return {
-            "workflow_type_versions": {
-                "CWL": ["v1.0"]
-            },
-            "supported_wes_versions": "0.2.0",
+            "workflow_type_versions": { "workflow_type_version": { "CWL":["v1.0"] } },
+            "supported_wes_versions": ["0.2.0"],
             "supported_filesystem_protocols": ["file"],
-            "workflow_engine_versions": "cwl-runner",
-            "default_workflow_engine_parameters": {},
+            "workflow_engine_versions": {"cwl-runner":"1.0"},
+            "default_workflow_engine_parameters": [
+                {
+                    "type":"string",
+                    "default_value":"None"
+                }
+            ],
             "system_state_counts": {},
             "auth_instructions_url": "",
             "tags": {}

@@ -29,6 +29,7 @@ def main(argv=sys.argv[1:]):
     exgroup.add_argument("--get", type=str, default=None)
     exgroup.add_argument("--log", type=str, default=None)
     exgroup.add_argument("--list", action="store_true", default=False)
+    exgroup.add_argument("--info", action="store_true", default=False)
     exgroup.add_argument("--version", action="store_true", default=False)
 
     exgroup = parser.add_mutually_exclusive_group()
@@ -53,6 +54,11 @@ def main(argv=sys.argv[1:]):
     client = SwaggerClient.from_url("%s://%s/swagger.json" % (args.proto, args.host),
                                     http_client=http_client, config={'use_models': False})
 
+    if args.info:
+        l = client.WorkflowExecutionService.GetServiceInfo()
+        json.dump(l.result(), sys.stdout, indent=4)
+        return 0
+
     if args.list:
         l = client.WorkflowExecutionService.ListWorkflows()
         json.dump(l.result(), sys.stdout, indent=4)
@@ -64,7 +70,7 @@ def main(argv=sys.argv[1:]):
         return 0
 
     if args.get:
-        l = client.WorkflowExecutionService.GetWorkflowLog(workflow_id=args.get)
+        l = client.WorkflowExecutionService.GetWorkflowStatus(workflow_id=args.get)
         json.dump(l.result(), sys.stdout, indent=4)
         return 0
 
