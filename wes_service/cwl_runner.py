@@ -51,7 +51,7 @@ class Workflow(object):
         return self.getstatus()
 
     def getstate(self):
-        state = "Running"
+        state = "RUNNING"
         exit_code = -1
 
         exc = os.path.join(self.workdir, "exit_code")
@@ -73,9 +73,9 @@ class Workflow(object):
                 exit_code = 255
 
         if exit_code == 0:
-            state = "Complete"
+            state = "COMPLETE"
         elif exit_code != -1:
-            state = "Error"
+            state = "EXECUTOR_ERROR"
 
         return (state, exit_code)
 
@@ -97,7 +97,7 @@ class Workflow(object):
             stderr = f.read()
 
         outputobj = {}
-        if state == "Complete":
+        if state == "COMPLETE":
             with open(os.path.join(self.workdir, "cwl.output.json"), "r") as outputtemp:
                 outputobj = json.load(outputtemp)
 
@@ -107,11 +107,11 @@ class Workflow(object):
             "state": state,
             "workflow_log": {
                 "cmd": [""],
-                "startTime": "",
-                "endTime": "",
+                "start_time": "",
+                "end_time": "",
                 "stdout": "",
                 "stderr": stderr,
-                "exitCode": exit_code
+                "exit_code": exit_code
             },
             "task_logs": [],
             "outputs": outputobj
@@ -122,22 +122,47 @@ class Workflow(object):
 
 
 class CWLRunnerBackend(WESBackend):
+    # Aliases to handle Swagger Router Controler in spec
+    aliases = {
+        'ga4gh.wes.server.GetServiceInfo': 'GetServiceInfo',
+        'ga4gh.wes.server.ListWorkflows': 'ListWorkflows',
+        'ga4gh.wes.server.RunWorkflow': 'RunWorkflow',
+        'ga4gh.wes.server.GetWorkflowLog': 'GetWorkflowLog',
+        'ga4gh.wes.server.CancelJob': 'CancelJob',
+        'ga4gh.wes.server.GetWorkflowStatus': 'GetWorkflowStatus',
+    }
+
+    def __setattr__(self, name, value):
+        name = self.aliases.get(name, name)
+        object.__setattr__(self, name, value)
+
+    def __getattr__(self, name):
+        if name == "aliases":
+            raise AttributeError
+        name = self.aliases.get(name, name)
+        return object.__getattribute__(self, name)
+
     def GetServiceInfo(self):
         return {
-            "workflow_type_versions": {
-                "CWL": ["v1.0"]
-            },
-            "supported_wes_versions": "0.1.0",
+            "workflow_type_versions": { "workflow_type_version": { "CWL":["v1.0"] } },
+            "supported_wes_versions": ["0.2.0"],
             "supported_filesystem_protocols": ["file"],
-            "engine_versions": "cwl-runner",
+            "workflow_engine_versions": {"cwl-runner":"1.0"},
+            "default_workflow_engine_parameters": [
+                {
+                    "type":"string",
+                    "default_value":"None"
+                }
+            ],
             "system_state_counts": {},
-            "key_values": {}
+            "auth_instructions_url": "",
+            "tags": {}
         }
 
     def ListWorkflows(self ,body=None):
         # body["page_size"]
         # body["page_token"]
-        # body["key_value_search"]
+        # body["tag_search"]
 
         wf = []
         for l in os.listdir(os.path.join(os.getcwd(), "workflows")):

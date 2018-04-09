@@ -28,7 +28,9 @@ def main(argv=sys.argv[1:]):
     exgroup.add_argument("--run", action="store_true", default=False)
     exgroup.add_argument("--get", type=str, default=None)
     exgroup.add_argument("--log", type=str, default=None)
+    exgroup.add_argument("--cancel", type=str, default=None)
     exgroup.add_argument("--list", action="store_true", default=False)
+    exgroup.add_argument("--info", action="store_true", default=False)
     exgroup.add_argument("--version", action="store_true", default=False)
 
     exgroup = parser.add_mutually_exclusive_group()
@@ -53,6 +55,11 @@ def main(argv=sys.argv[1:]):
     client = SwaggerClient.from_url("%s://%s/swagger.json" % (args.proto, args.host),
                                     http_client=http_client, config={'use_models': False})
 
+    if args.info:
+        l = client.WorkflowExecutionService.GetServiceInfo()
+        json.dump(l.result(), sys.stdout, indent=4)
+        return 0
+
     if args.list:
         l = client.WorkflowExecutionService.ListWorkflows()
         json.dump(l.result(), sys.stdout, indent=4)
@@ -64,7 +71,12 @@ def main(argv=sys.argv[1:]):
         return 0
 
     if args.get:
-        l = client.WorkflowExecutionService.GetWorkflowLog(workflow_id=args.get)
+        l = client.WorkflowExecutionService.GetWorkflowStatus(workflow_id=args.get)
+        json.dump(l.result(), sys.stdout, indent=4)
+        return 0
+
+    if args.cancel:
+        l = client.WorkflowExecutionService.CancelJob(workflow_id=args.cancel)
         json.dump(l.result(), sys.stdout, indent=4)
         return 0
 
@@ -99,7 +111,7 @@ def main(argv=sys.argv[1:]):
         exit(0)
 
     r = client.WorkflowExecutionService.GetWorkflowStatus(workflow_id=r["workflow_id"]).result()
-    while r["state"] in ("Queued", "Initializing", "Running"):
+    while r["state"] in ("QUEUED", "INITIALIZING", "RUNNING"):
         time.sleep(1)
         r = client.WorkflowExecutionService.GetWorkflowStatus(workflow_id=r["workflow_id"]).result()
 
@@ -112,7 +124,7 @@ def main(argv=sys.argv[1:]):
         del s["outputs"]["fields"]
     json.dump(s["outputs"], sys.stdout, indent=4)
 
-    if r["state"] == "Complete":
+    if r["state"] == "COMPLETE":
         return 0
     else:
         return 1
